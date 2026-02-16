@@ -127,7 +127,7 @@ class SimulatedAnnealing_Base:
 #
 ###########################################################################################
 #
-class SimpleArraySorter(SimulatedAnnealing_Base):
+class SimpleArraySolver(SimulatedAnnealing_Base):
     def __init__(self):
         # call parent ctor
         super().__init__()
@@ -147,12 +147,29 @@ class SimpleArraySorter(SimulatedAnnealing_Base):
 #
 ###########################################################################################
 #
-class LatiumIslandSorter(SimulatedAnnealing_Base):
+class LatiumIslandSolver(SimulatedAnnealing_Base):
     def __init__(self):
         # call parent ctor
         super().__init__()
 
         # set up a basic array of islands
+        self.load_islands()
+
+
+    def load_islands(self):
+
+        # todo - make this more general
+        filename = 'corners_seed7324_latium.csv'
+
+        # walk the input file list
+        with open(filename, 'r') as file:
+            for line in file:
+                # Process each line here
+                if line[0] != '#':
+                    island = Islands.LatiumIsland.from_string(line.strip())
+                    self.the_list.append(island)
+                    # island.dump()
+
 
     # define the virtual score() function
     def score(self, candidate_list: []) -> float:
@@ -180,12 +197,18 @@ class LatiumIslandSorter(SimulatedAnnealing_Base):
 #
 def main():
 
-    simple_solver = SimpleArraySorter()
+    simple_solver = SimpleArraySolver()
     my_list = simple_solver.the_list
     print(f"Initial List   [{len(my_list)}]    : {my_list}")
 
     my_list = simple_solver.solve()
     print(f"Final List     [{len(my_list)}]    : {my_list}")
+
+    # latium solver
+    lat_solver = LatiumIslandSolver()
+
+    print("Done")
+
 
 
 if __name__ == '__main__':

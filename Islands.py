@@ -1,5 +1,7 @@
 from enum import IntFlag, IntEnum, auto
 
+import Islands
+
 
 class IslandSize(IntEnum):
     """
@@ -53,6 +55,33 @@ class LatiumIsland:
         self.fertility_weight = {}
         self.island_size_weight = {}
         self.define_weights()
+
+    @classmethod
+    def from_string(cls, island_string):
+        fields = island_string.strip().split(',')
+        print(fields)
+        island_name = fields[0]
+
+        fertilities = Islands.LatiumFertility.NONE
+        # ndx = 1
+        for ndx, fert_value in enumerate(Islands.LatiumFertility):
+            if fields[ndx+1] != '':
+                fertilities |= fert_value
+
+        mountains = int(fields[15])
+        rivers = int(fields[16])
+
+        size = IslandSize.SMALL
+        if fields[17] == 'XL':
+            size = IslandSize.EXTRALARGE
+        elif fields[17] == 'L':
+            size = IslandSize.LARGE
+        elif fields[17] == 'M':
+            size = IslandSize.MEDIUM
+        else:
+            size = IslandSize.SMALL
+
+        return cls(island_name, fertilities, rivers, mountains, size)
 
 
     def define_weights(self):
