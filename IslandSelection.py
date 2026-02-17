@@ -1,7 +1,9 @@
 import math
 import numpy
 
-import Islands
+# import Islands
+from Islands import LatiumIsland
+from Islands import LatiumFertility
 
 
 #
@@ -26,13 +28,13 @@ class SimulatedAnnealing_Base:
         self.temperature = 500.0    # black art = pick this to be ~150% of a typical score change
         self.cooling_rate = 0.95    # a slower rate allows solution to better avoid local maxima to find a true maxima
 
-    def score(self, candidate_list: []) -> float:
+    def score(self, candidate_list: list) -> float:
         """
         function to define the value or score of this particular list arrangement
         """
         raise NotImplementedError()
 
-    def solve(self) -> []:
+    def solve(self) -> list:
         """
         Simulated Annealing basic algorithm
             - start with initial random solution, and a high initial temperature T
@@ -50,6 +52,7 @@ class SimulatedAnnealing_Base:
         for anneal_counter in range(self.max_anneals):
 
             # print(f"Outer loop: [{anneal_counter}] Temperature: [{self.temperature}]------------------------------------")
+            # print(f"{anneal_counter} ", end = '')
             for trial_counter in range(self.max_trials):
                 perturbed_list = self.perturb_list(self.the_list.copy())
                 perturbed_score = self.score(perturbed_list)
@@ -81,7 +84,8 @@ class SimulatedAnnealing_Base:
 
         return self.the_list
 
-    def perturb_list(self, the_list: []) -> []:
+    @staticmethod
+    def perturb_list(the_list: list) -> list:
         """
         Take an existing list, and perturb it by
             - taking a segment of list members beginning at a random list position,
@@ -128,6 +132,9 @@ class SimulatedAnnealing_Base:
 ###########################################################################################
 #
 class SimpleArraySolver(SimulatedAnnealing_Base):
+    """
+    Proof of concept solver
+    """
     def __init__(self):
         # call parent ctor
         super().__init__()
@@ -140,7 +147,7 @@ class SimpleArraySolver(SimulatedAnnealing_Base):
     # define the virtual score() function
     # this one simply defines the score as a weighted sum of the first 3 list values
     # the perfect sorted order be [240, 230, 220, ...the rest doesn't matter]
-    def score(self, candidate_list: []) -> float:
+    def score(self, candidate_list: list) -> float:
         rv = candidate_list[0] + 0.9 * candidate_list[1] + 0.8 * candidate_list[2]
         return rv
 
@@ -148,6 +155,10 @@ class SimpleArraySolver(SimulatedAnnealing_Base):
 ###########################################################################################
 #
 class LatiumIslandSolver(SimulatedAnnealing_Base):
+    """
+    Solver for Latium Islands.
+    Find an optimum set of Latium Islands which provides all Latium fertilities
+    """
     def __init__(self):
         # call parent ctor
         super().__init__()
@@ -155,40 +166,74 @@ class LatiumIslandSolver(SimulatedAnnealing_Base):
         # set up a basic array of islands
         self.load_islands()
 
+        self.max_trials = 500
+        self.cooling_rate = 0.95
+
 
     def load_islands(self):
+        """
+        load island info from a CSV file
+        # todo - read this info from a savegame file
+        ideally this function should be replaced to read the island info
+        directly from a save file
+        """
 
-        # todo - make this more general
+        # todo - make this more general, rather than hardcoding it
         filename = 'corners_seed7324_latium.csv'
+        # filename = 'archipelago_seed8689_latium.csv'
 
         # walk the input file list
         with open(filename, 'r') as file:
             for line in file:
                 # Process each line here
                 if line[0] != '#':
-                    island = Islands.LatiumIsland.from_string(line.strip())
+                    island = LatiumIsland.from_string(line.strip())
                     self.the_list.append(island)
                     # island.dump()
 
 
+
     # define the virtual score() function
-    def score(self, candidate_list: []) -> float:
-        rv = 0.0
+    def score(self, candidate_list: list) -> float:
 
         # keep track of fertilities
-        fertility_coverage = Islands.LatiumFertility.NONE
-
         # set all bits
-        for fert in Islands.LatiumFertility:
-            fertility_coverage |= fert
+        all_fertilities = LatiumFertility.all_fertilities()
 
-        # clear a bit
-        # mask = ~fert_value
-        # fertility_coverage &= mask
+        # determine a score for the first N islands, where N is the number of islands required
+        # to provide one of every fertility
 
-        # return self.fertilities & fert_value == fert_value
+        # walk the list until we have gotten all the fertilities
+        rv = 0.0
+        reduction_rate = 0.9
+        covered_fertilities = LatiumFertility.all_fertilities()
+        for ndx, island in enumerate(candidate_list):
+            rv += (reduction_rate ** ndx) * island.calculate_score(covered_fertilities)
+            rv -= ndx * 100
+            # rv += island.calculate_score(covered_fertilities)
+            # removed this island's fertilities from the overall list
+            covered_fertilities &= ~island.fertilities
+            if covered_fertilities == LatiumFertility.no_fertilities():
+                break
+        # print(f"highest index to cover all ferts = {ndx}")
 
         return rv
+
+    def report(self):
+
+        print(f"Score: [{self.score(self.the_list)}] [", end = '')
+
+        covered_fertilities = LatiumFertility.all_fertilities()
+
+        island: LatiumIsland
+        for island in self.the_list:
+            print(f"{island.island_name}", end = '')
+            covered_fertilities &= ~island.fertilities
+            if covered_fertilities == LatiumFertility.no_fertilities():
+                break
+            print(", ", end = '')
+
+        print("]")
 
 
 
@@ -197,15 +242,20 @@ class LatiumIslandSolver(SimulatedAnnealing_Base):
 #
 def main():
 
-    simple_solver = SimpleArraySolver()
-    my_list = simple_solver.the_list
-    print(f"Initial List   [{len(my_list)}]    : {my_list}")
-
-    my_list = simple_solver.solve()
-    print(f"Final List     [{len(my_list)}]    : {my_list}")
+    # simple_solver = SimpleArraySolver()
+    # my_list = simple_solver.the_list
+    # print(f"Initial List   [{len(my_list)}]    : {my_list}")
+    #
+    # my_list = simple_solver.solve()
+    # print(f"Final List     [{len(my_list)}]    : {my_list}")
 
     # latium solver
     lat_solver = LatiumIslandSolver()
+    # score = lat_solver.score(lat_solver.the_list)
+    # print(f"Score: [{score}]")
+    lat_solver.report()
+    lat_solver.solve()
+    lat_solver.report()
 
     print("Done")
 
