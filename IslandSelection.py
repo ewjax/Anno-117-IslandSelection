@@ -64,7 +64,7 @@ class SimulatedAnnealing_Base:
 
                 # if perturbed_score is worse, maybe accept the change
                 elif perturbed_score < current_score:
-                    # this will be a negative delta
+                    # this delta will be a negative value, which is needed
                     delta_score = perturbed_score - current_score
                     prob_acceptance = math.exp(delta_score / self.temperature)
                     # print(f"prob: [{prob_acceptance}]")
@@ -166,8 +166,11 @@ class LatiumIslandSolver(SimulatedAnnealing_Base):
         # set up a basic array of islands
         self.load_islands()
 
+        # solution tuning factors
         self.max_trials = 500
         self.cooling_rate = 0.95
+        self.extra_island_reduction_rate = 0.9
+        self.extra_island_penalty = 100
 
 
     def load_islands(self):
@@ -196,21 +199,19 @@ class LatiumIslandSolver(SimulatedAnnealing_Base):
     # define the virtual score() function
     def score(self, candidate_list: list) -> float:
 
-        # keep track of fertilities
-        # set all bits
-        all_fertilities = LatiumFertility.all_fertilities()
-
         # determine a score for the first N islands, where N is the number of islands required
         # to provide one of every fertility
 
         # walk the list until we have gotten all the fertilities
+        # order matters, so reduce the score in subsequent islands by 'extra_island_reduction_rate'
+        # also, we only want the minimum number of islands to cover all fertilities, so
+        # add a penalty for every island beyond the first
         rv = 0.0
-        reduction_rate = 0.9
-        covered_fertilities = LatiumFertility.all_fertilities()
+        covered_fertilities: LatiumFertility = LatiumFertility.all_fertilities()
+        island: LatiumIsland
         for ndx, island in enumerate(candidate_list):
-            rv += (reduction_rate ** ndx) * island.calculate_score(covered_fertilities)
-            rv -= ndx * 100
-            # rv += island.calculate_score(covered_fertilities)
+            rv += (self.extra_island_reduction_rate ** ndx) * island.calculate_score(covered_fertilities)
+            rv -= ndx * self.extra_island_penalty
             # removed this island's fertilities from the overall list
             covered_fertilities &= ~island.fertilities
             if covered_fertilities == LatiumFertility.no_fertilities():
