@@ -521,17 +521,17 @@ def main():
     # print(f"{LatiumFertility.__members__}")
     # print("---------------------------------------------")
     #
-    name = 'sample island'
-    li = LatiumIsland(name)
-    li.add_fertility(LatiumFertility.MACKEREL)
-    li.add_fertility(LatiumFertility.SANDARAC | LatiumFertility.RESIN)
-    print(f"Name:               [{li.island_name}]")
-    print(f"Score:              [{li.calculate_score(LatiumFertility.all_fertilities())}]")
-    print(f"Score (none):       [{li.calculate_score(LatiumFertility.no_fertilities())}]")
-    # li.dump()
-    print(f"Island has resin?   [{li.has_fertility(LatiumFertility.RESIN)}]")
-    print(f"Island has gold?    [{li.has_fertility(LatiumFertility.GOLD_ORE)}]")
-    print("---------------------------------------------")
+    # name = 'sample island'
+    # li = LatiumIsland(name)
+    # li.add_fertility(LatiumFertility.MACKEREL)
+    # li.add_fertility(LatiumFertility.SANDARAC | LatiumFertility.RESIN)
+    # print(f"Name:               [{li.island_name}]")
+    # print(f"Score:              [{li.calculate_score(LatiumFertility.all_fertilities())}]")
+    # print(f"Score (none):       [{li.calculate_score(LatiumFertility.no_fertilities())}]")
+    # # li.dump()
+    # print(f"Island has resin?   [{li.has_fertility(LatiumFertility.RESIN)}]")
+    # print(f"Island has gold?    [{li.has_fertility(LatiumFertility.GOLD_ORE)}]")
+    # print("---------------------------------------------")
     #
     # li2 = LatiumIsland("island two", LatiumFertility.MACKEREL | LatiumFertility.OLIVE | LatiumFertility.MARBLE, 12, 8)
     # print(f"Name:               [{li2.island_name}]")
