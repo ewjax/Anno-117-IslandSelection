@@ -1,15 +1,12 @@
 import math
 import numpy
 
-# import Islands
-from Islands import LatiumIsland
-from Islands import LatiumFertility
-
-
 #
 ###########################################################################################
 #
-class SimulatedAnnealing_Base:
+#   General purpose Simulated Annealing solver
+#
+class SimulatedAnnealingSolver:
     """
     Base class for Simulated Annealing Solver derived classes
     child classes should
@@ -131,7 +128,7 @@ class SimulatedAnnealing_Base:
 #
 ###########################################################################################
 #
-class SimpleArraySolver(SimulatedAnnealing_Base):
+class SimpleArraySolver(SimulatedAnnealingSolver):
     """
     Proof of concept solver
     """
@@ -151,112 +148,19 @@ class SimpleArraySolver(SimulatedAnnealing_Base):
         rv = candidate_list[0] + 0.9 * candidate_list[1] + 0.8 * candidate_list[2]
         return rv
 
-#
-###########################################################################################
-#
-class LatiumIslandSolver(SimulatedAnnealing_Base):
-    """
-    Solver for Latium Islands.
-    Find an optimum set of Latium Islands which provides all Latium fertilities
-    """
-    def __init__(self):
-        # call parent ctor
-        super().__init__()
-
-        # set up a basic array of islands
-        self.load_islands()
-
-        # solution tuning factors
-        self.max_trials = 500
-        self.cooling_rate = 0.95
-        self.extra_island_reduction_rate = 0.9
-        self.extra_island_penalty = 100
-
-
-    def load_islands(self):
-        """
-        load island info from a CSV file
-        # todo - read this info from a savegame file
-        ideally this function should be replaced to read the island info
-        directly from a save file
-        """
-
-        # todo - make this more general, rather than hardcoding it
-        filename = 'corners_seed7324_latium.csv'
-        # filename = 'archipelago_seed8689_latium.csv'
-
-        # walk the input file list
-        with open(filename, 'r') as file:
-            for line in file:
-                # Process each line here
-                if line[0] != '#':
-                    island = LatiumIsland.from_string(line.strip())
-                    self.the_list.append(island)
-                    # island.dump()
-
-
-
-    # define the virtual score() function
-    def score(self, candidate_list: list) -> float:
-
-        # determine a score for the first N islands, where N is the number of islands required
-        # to provide one of every fertility
-
-        # walk the list until we have gotten all the fertilities
-        # order matters, so reduce the score in subsequent islands by 'extra_island_reduction_rate'
-        # also, we only want the minimum number of islands to cover all fertilities, so
-        # add a penalty for every island beyond the first
-        rv = 0.0
-        covered_fertilities: LatiumFertility = LatiumFertility.all_fertilities()
-        island: LatiumIsland
-        for ndx, island in enumerate(candidate_list):
-            rv += (self.extra_island_reduction_rate ** ndx) * island.calculate_score(covered_fertilities)
-            rv -= ndx * self.extra_island_penalty
-            # removed this island's fertilities from the overall list
-            covered_fertilities &= ~island.fertilities
-            if covered_fertilities == LatiumFertility.no_fertilities():
-                break
-        # print(f"highest index to cover all ferts = {ndx}")
-
-        return rv
-
-    def report(self):
-
-        print(f"Score: [{self.score(self.the_list)}] [", end = '')
-
-        covered_fertilities = LatiumFertility.all_fertilities()
-
-        island: LatiumIsland
-        for island in self.the_list:
-            print(f"{island.island_name}", end = '')
-            covered_fertilities &= ~island.fertilities
-            if covered_fertilities == LatiumFertility.no_fertilities():
-                break
-            print(", ", end = '')
-
-        print("]")
-
-
 
 #
 ###########################################################################################
 #
 def main():
 
-    # simple_solver = SimpleArraySolver()
-    # my_list = simple_solver.the_list
-    # print(f"Initial List   [{len(my_list)}]    : {my_list}")
-    #
-    # my_list = simple_solver.solve()
-    # print(f"Final List     [{len(my_list)}]    : {my_list}")
+    simple_solver = SimpleArraySolver()
+    my_list = simple_solver.the_list
+    print(f"Initial List   [{len(my_list)}]    : {my_list}")
 
-    # latium solver
-    lat_solver = LatiumIslandSolver()
-    # score = lat_solver.score(lat_solver.the_list)
-    # print(f"Score: [{score}]")
-    lat_solver.report()
-    lat_solver.solve()
-    lat_solver.report()
+    my_list = simple_solver.solve()
+    print(f"Final List     [{len(my_list)}]    : {my_list}")
+
 
     print("Done")
 
