@@ -6,9 +6,10 @@ The Simulated Annealing technique works by assigning a value to each island, the
 
 Note that the Simulated Annealing technique is pretty good at finding *A GOOD* solution, but it does not guarantee that it will find *THE BEST* solution.  It doesn't run every combination and permutation and determine the absolute best, it is running a subset of those cases and using the "simulated annealing" tricks to try and find *A GOOD* solution, which is hopefully at least close to *THE BEST* solution.  True simulated-annealing-nerd-warriors may want to play with the initial "temperature" of the system and the rate at which the "temperature" cools (see the LatiumSolver and AlbionSolver classes).  I have tinkered with those and set them to what seem to be giving pretty good results.
 
-Input:  The ideal case would be to extract the island location and island fertility information from a savegame file, but since I'm not smart enough to know how to do that, this one works by reading that information in from a user-prepared .CSV file.  Hopefully smarter Anno-warriors who have a better understanding than me can offer suggestions / pull requests on how to better perform this step.
+## Input
+The ideal case would be to extract the island location and island fertility information from a savegame file, but since I'm not smart enough to know how to do that, this one works by reading that information in from a user-prepared .CSV file.  Hopefully smarter Anno-warriors who have a better understanding than me can offer suggestions / pull requests on how to better perform this step.
 
-Example of .csv file format shown.  Note that the island name can be anything, I tend to select names using compass bearings, but there is nothing magic about the name selection:
+Example of .csv file format shown.  The first field is an arbitrary name, then a bunch of fields with a 1 indicating this island has that fertility, then fields for mountain slots and river slots, and finally a field indicating island size, XL or L or M or S.  Note that the island name can be anything, I tend to select names using compass bearings, but there is nothing magic about the name selection:
 ```
 #Name,Mackerel,Lavender,Resin,Olive,Grapes,Flax,Murex Snail,Sandarac,Oyster,Sturgeon,Marble,Iron,Mineral,Gold Ore,Mountains,Rivers,Size
 W,1,,,,1,,1,,,1,,1,,1,7,13,XL
@@ -30,4 +31,33 @@ S,,1,,,1,1,,,1,,,1,,1,6,13,XL
 160,1,,1,1,1,,,,1,,1,,,,3,0,S
 200,,1,1,1,,,,,,1,,1,,1,6,12,L
 ```
+## Usage
+```
+python LatiumSolver.py inputfile.csv
+```
+and
+```
+python AlbionSolver.py inputfile.csv
+```
 
+
+## Output 
+Sample outputs of the Latium solver:
+```
+Region map: [corners_seed7324_latium.csv]
+Optimized Island Set, Latium Islands:
+            Islands: [W, 250, 290] (Score = 944)
+```
+This is indicating that a good set of latium islands that give access to every latium fertility can be found from setting the islands I arbitrarily named 'W', then '250', then '290'.
+
+Sample output of the Albion solver:
+```
+Region map: [corners_seed7324_albion.csv]
+Optimized Island Set, Albion Islands, Roman then Celtic:
+      Roman Islands: [200, N, 070] (Score = 1154)
+     Celtic Islands: [E, 160, S] (Score = 1408)
+Optimized Island Set, Albion Islands, Celtic then Roman:
+     Celtic Islands: [020, N, E] (Score = 1528)
+      Roman Islands: [W, 200, 340] (Score = 1043)
+```
+The Albion results are more complicated than the Latium results, since there are two different types of population to set up and I don't try to smerge both types onto a single set of islands.  I try to pick a set of islands for the Albion-Celts, and another set for the Albion-Romans, and it matters which set you prioritize first.

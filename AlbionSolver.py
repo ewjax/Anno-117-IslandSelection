@@ -1,5 +1,6 @@
 from AlbionIsland import *
 from SimulatedAnnealingSolver import *
+import sys
 
 ###########################################################################################
 #
@@ -14,12 +15,7 @@ class AlbionSolver(SimulatedAnnealingSolver):
         super().__init__()
 
         # input file
-        # todo - make this more general, rather than hardcoding it
-        # self.filename = 'corners_seed7324_albion.csv'
-        self.filename = 'archipelago_seed8689_albion.csv'
-
-        # set up a basic array of islands
-        self.load_islands()
+        self.filename = ''
 
         # use this to target All, Celtic or Roman fertilities in the solution
         self.starting_fertilities = AlbionFertility.all_fertilities()
@@ -33,6 +29,10 @@ class AlbionSolver(SimulatedAnnealingSolver):
         self.extra_island_reduction_rate = 0.9
         self.extra_island_penalty = 100
 
+    def set_filename(self, filename: str):
+        # set up a basic array of islands
+        self.filename = filename
+        self.load_islands()
 
     def load_islands(self):
         """
@@ -113,8 +113,16 @@ class AlbionSolver(SimulatedAnnealingSolver):
 #
 def main():
 
+    # command line
+    #       python AlbionSolver.py inputfile.csv
+    if len(sys.argv) != 2:
+        print("Usage:")
+        print("     python AlbionSolver.py inputfile.csv")
+        exit(-1)
+
     # Albion solver
     alb_solver = AlbionSolver()
+    alb_solver.set_filename(sys.argv[1])
     print('')
     print(f"Region map: [{alb_solver.filename}]")
     # alb_solver.report()
@@ -163,8 +171,6 @@ def main():
     alb_solver.solve()
     print("      Roman ", end = '')
     alb_solver.report()
-
-
 
     print('')
     print("Done")

@@ -1,5 +1,6 @@
 from LatiumIsland import *
 from SimulatedAnnealingSolver import *
+import sys
 
 ###########################################################################################
 #
@@ -14,12 +15,7 @@ class LatiumSolver(SimulatedAnnealingSolver):
         super().__init__()
 
         # input file
-        # todo - make this more general, rather than hardcoding it
-        self.filename = 'corners_seed7324_latium.csv'
-        # self.filename = 'archipelago_seed8689_latium.csv'
-
-        # set up a basic array of islands
-        self.load_islands()
+        self.filename = ''
 
         # solution tuning factors
         self.max_anneals = 200      # black art = set as approx log(.01/Temperature)/(log(coolingrate))
@@ -30,6 +26,10 @@ class LatiumSolver(SimulatedAnnealingSolver):
         self.extra_island_reduction_rate = 0.9
         self.extra_island_penalty = 200
 
+    def set_filename(self, filename: str):
+        # set up a basic array of islands
+        self.filename = filename
+        self.load_islands()
 
     def load_islands(self):
         """
@@ -39,6 +39,9 @@ class LatiumSolver(SimulatedAnnealingSolver):
         directly from a save file
         """
 
+        # ensure list starts empty
+        self.the_list = []
+
         # walk the input file list
         with open(self.filename, 'r') as file:
             for line in file:
@@ -47,8 +50,6 @@ class LatiumSolver(SimulatedAnnealingSolver):
                     island = LatiumIsland.from_string(line.strip())
                     self.the_list.append(island)
                     # island.dump()
-
-
 
     # define the virtual score() function
     def score(self, candidate_list: list) -> float:
@@ -75,6 +76,11 @@ class LatiumSolver(SimulatedAnnealingSolver):
         return rv
 
     def report(self) -> list:
+        """
+        write results of the solve action to stdout
+
+        :return: list of the islands in the solution
+        """
         rv = list()
         covered_fertilities = LatiumFertility.all_fertilities()
 
@@ -100,8 +106,16 @@ class LatiumSolver(SimulatedAnnealingSolver):
 #
 def main():
 
+    # command line
+    #       python LatiumSolver.py inputfile.csv
+    if len(sys.argv) != 2:
+        print("Usage:")
+        print("     python LatiumSolver.py inputfile.csv")
+        exit(-1)
+
     # latium solver
     lat_solver = LatiumSolver()
+    lat_solver.set_filename(sys.argv[1])
     print('')
     print(f"Region map: [{lat_solver.filename}]")
     # score = lat_solver.score(lat_solver.the_list)
