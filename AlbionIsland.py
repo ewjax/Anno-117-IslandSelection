@@ -50,6 +50,36 @@ class AlbionFertility(IntFlag):
             rv |= f.value
         return rv
 
+    # define which fertilities are Celtic and which are Roman
+    @staticmethod
+    def celtic():
+        rv = (
+            AlbionFertility.BARLEY |
+            AlbionFertility.DYE_PLANT |
+            AlbionFertility.COPPER |
+            AlbionFertility.TIN |
+            AlbionFertility.SALTWORT |
+            AlbionFertility.BEAVER |
+            AlbionFertility.PONY |
+            AlbionFertility.IRON |
+            AlbionFertility.GRANITE
+        )
+        return rv
+
+    # define which fertilities are Celtic and which are Roman
+    @staticmethod
+    def roman():
+        rv = (
+            AlbionFertility.HERBS |
+            AlbionFertility.SILVER |
+            AlbionFertility.RESIN |
+            AlbionFertility.SMALL_BIRDS |
+            AlbionFertility.FLAX |
+            AlbionFertility.SEA_SHELL |
+            AlbionFertility.IRON
+        )
+        return rv
+
     def dump(self):
         print(f"Name:   [{self.name}]")
         print(f"Value:  [{self.value}]")
@@ -89,12 +119,12 @@ class AlbionIsland:
         self.island_size_weight = {}
 
         # mountain and marsh weights
-        self.mountain_weight = 5
-        self.marsh_weight = 5
+        self.mountain_weight = 0
+        self.marsh_weight = 0
 
         # which fertilities match up to different albion population types
-        self.albion_celtic_fertilities = AlbionFertility.NONE
-        self.albion_roman_fertilities = AlbionFertility.NONE
+        # self.albion_celtic_fertilities = AlbionFertility.NONE
+        # self.albion_roman_fertilities = AlbionFertility.NONE
 
         # call function to set all tuning values
         self.define_weights()
@@ -144,7 +174,6 @@ class AlbionIsland:
         Weighting Scheme
         Tier2 - 70 points per production chain
         Tier3 - 50 points per production chain
-        Tier4 - 30 points per production chain
         Construction material - use tier scores, but divide by 2
         River slots - 5 point per slot, adjusted by gold ore and/or sturgeon presence
         Mountain slots - 5 point per slot, adjusted by mineral score?
@@ -181,8 +210,8 @@ class AlbionIsland:
         self.fertility_weight[AlbionFertility.SEA_SHELL] += 50      # mirrors
 
         # construction material for tier2 weapons and armor
-        # (50 + 50)/2
-        self.fertility_weight[AlbionFertility.IRON] = 50
+        # (70 + 70)/2
+        self.fertility_weight[AlbionFertility.IRON] = 70
 
         # construction material for celtic tier3 buildings
         # tier3 buildings - alder council, barrow, sacred grove
@@ -196,37 +225,11 @@ class AlbionIsland:
         self.marsh_weight = 5
 
         # island size
-        self.island_size_weight[IslandSize.EXTRALARGE] = 150
-        self.island_size_weight[IslandSize.LARGE] = 80
-        self.island_size_weight[IslandSize.MEDIUM] = 40
-        self.island_size_weight[IslandSize.SMALL] = 20
+        self.island_size_weight[IslandSize.EXTRALARGE] = 400
+        self.island_size_weight[IslandSize.LARGE] = 200
+        self.island_size_weight[IslandSize.MEDIUM] = 100
+        self.island_size_weight[IslandSize.SMALL] = 10
 
-        # define which fertilities are Celtic and which are Roman
-        self.albion_celtic_fertilities = (
-            AlbionFertility.BARLEY |
-            AlbionFertility.DYE_PLANT |
-            AlbionFertility.COPPER |
-            AlbionFertility.TIN |
-            AlbionFertility.SALTWORT |
-            AlbionFertility.BEAVER |
-            AlbionFertility.PONY |
-            AlbionFertility.IRON |
-            AlbionFertility.GRANITE
-        )
-
-        self.albion_roman_fertilities = (
-            AlbionFertility.HERBS |
-            AlbionFertility.SILVER |
-            AlbionFertility.RESIN |
-            AlbionFertility.SMALL_BIRDS |
-            AlbionFertility.FLAX |
-            AlbionFertility.SEA_SHELL |
-            AlbionFertility.IRON
-        )
-
-
-
-    # todo - fix
     def calculate_score(self, include_fertilities: AlbionFertility) -> float:
         """
         determine score based purely on this island's fertilities
@@ -243,19 +246,11 @@ class AlbionIsland:
             if self.has_fertility(f) and include_fertilities.has(f):
                 rv += self.fertility_weight[f.value]
 
-        # river slots. increase weighting if there is also a Sturgeon or Gold fertility
-        # count these even if they've already been counted already on a previous island
+        # marsh slots.
         rv += self.marsh_weight * self.marsh_slots
-        # if self.has_fertility(AlbionFertility.STURGEON):
-        #     rv += 0.5 * self.river_weight * self.river_slots
-        # if self.has_fertility(AlbionFertility.GOLD_ORE):
-        #     rv += 0.5 * self.river_weight * self.river_slots
 
-        # mountain slots. increase weighting if there is also a Mineral fertility
-        # count these even if they've already been counted already on a previous island
+        # mountain slots.
         rv += self.mountain_weight * self.mountain_slots
-        # if self.has_fertility(AlbionFertility.MINERAL):
-        #     rv += 0.5 * self.mountain_weight * self.mountain_slots
 
         # island size
         rv += self.island_size_weight[self.island_size]

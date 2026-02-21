@@ -17,16 +17,13 @@ class LatiumSolver(SimulatedAnnealingSolver):
         self.load_islands()
 
         # solution tuning factors
-        self.max_anneals = 225      # black art = set as approx log(.01/Temperature)/(log(coolingrate))
+        self.max_anneals = 200      # black art = set as approx log(.01/Temperature)/(log(coolingrate))
         self.max_trials = 1000      # max trials per annealing temperature
         self.temperature = 1000.0    # black art = pick this to be ~150% of a typical score change
         self.cooling_rate = 0.95    # a slower rate allows solution to better avoid local maxima to find a true maxima
 
-
-        self.max_trials = 500
-        self.cooling_rate = 0.95
         self.extra_island_reduction_rate = 0.9
-        self.extra_island_penalty = 100
+        self.extra_island_penalty = 200
 
 
     def load_islands(self):

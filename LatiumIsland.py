@@ -181,10 +181,10 @@ class LatiumIsland:
         self.river_weight = 5
 
         # island size
-        self.island_size_weight[IslandSize.EXTRALARGE] = 160
-        self.island_size_weight[IslandSize.LARGE] = 80
-        self.island_size_weight[IslandSize.MEDIUM] = 40
-        self.island_size_weight[IslandSize.SMALL] = 20
+        self.island_size_weight[IslandSize.EXTRALARGE] = 300
+        self.island_size_weight[IslandSize.LARGE] = 150
+        self.island_size_weight[IslandSize.MEDIUM] = 75
+        self.island_size_weight[IslandSize.SMALL] = 30
 
 
     def calculate_score(self, include_fertilities: LatiumFertility) -> float:
