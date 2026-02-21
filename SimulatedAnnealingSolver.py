@@ -17,7 +17,7 @@ class SimulatedAnnealingSolver:
 
     def __init__(self):
         # the list of items to be sorted
-        self.the_list = []
+        self.the_list = list()
 
         # simulated annealing solver tuning parameters
         self.max_anneals = 200      # black art = set as approx log(.01/Temperature)/(log(coolingrate))

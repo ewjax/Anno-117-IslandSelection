@@ -122,10 +122,6 @@ class AlbionIsland:
         self.mountain_weight = 0
         self.marsh_weight = 0
 
-        # which fertilities match up to different albion population types
-        # self.albion_celtic_fertilities = AlbionFertility.NONE
-        # self.albion_roman_fertilities = AlbionFertility.NONE
-
         # call function to set all tuning values
         self.define_weights()
 
@@ -219,10 +215,10 @@ class AlbionIsland:
         self.fertility_weight[AlbionFertility.GRANITE] += 75
 
         # mountain slot weight
-        self.mountain_weight = 5
+        self.mountain_weight = 10
 
         # marsh slot weight
-        self.marsh_weight = 5
+        self.marsh_weight = 10
 
         # island size
         self.island_size_weight[IslandSize.EXTRALARGE] = 400

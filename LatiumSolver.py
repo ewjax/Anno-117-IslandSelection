@@ -13,6 +13,11 @@ class LatiumSolver(SimulatedAnnealingSolver):
         # call parent ctor
         super().__init__()
 
+        # input file
+        # todo - make this more general, rather than hardcoding it
+        self.filename = 'corners_seed7324_latium.csv'
+        # self.filename = 'archipelago_seed8689_latium.csv'
+
         # set up a basic array of islands
         self.load_islands()
 
@@ -29,17 +34,13 @@ class LatiumSolver(SimulatedAnnealingSolver):
     def load_islands(self):
         """
         load island info from a CSV file
-        # todo - read this info from a savegame file
+        # todo - read this info from a savegame file rather than a CSV file
         ideally this function should be replaced to read the island info
         directly from a save file
         """
 
-        # todo - make this more general, rather than hardcoding it
-        filename = 'corners_seed7324_latium.csv'
-        # filename = 'archipelago_seed8689_latium.csv'
-
         # walk the input file list
-        with open(filename, 'r') as file:
+        with open(self.filename, 'r') as file:
             for line in file:
                 # Process each line here
                 if line[0] != '#':
@@ -73,14 +74,14 @@ class LatiumSolver(SimulatedAnnealingSolver):
 
         return rv
 
-    def report(self):
-
-        print(f"Score: [{self.score(self.the_list):.0f}] [", end = '')
-
+    def report(self) -> list:
+        rv = list()
         covered_fertilities = LatiumFertility.all_fertilities()
 
+        print(f"Islands: [", end = '')
         island: LatiumIsland
         for island in self.the_list:
+            rv.append(island)
             print(f"{island.island_name}", end = '')
             # removed this island's fertilities from the overall list
             covered_fertilities = covered_fertilities.remove(island.fertilities)
@@ -88,8 +89,10 @@ class LatiumSolver(SimulatedAnnealingSolver):
                 break
             print(", ", end = '')
 
-        print("]")
+        print(f"] (Score = {self.score(self.the_list):.0f})")
 
+        # return a list of the solution islands
+        return rv
 
 
 #
@@ -99,11 +102,18 @@ def main():
 
     # latium solver
     lat_solver = LatiumSolver()
+    print('')
+    print(f"Region map: [{lat_solver.filename}]")
     # score = lat_solver.score(lat_solver.the_list)
     # print(f"Score: [{score}]")
-    lat_solver.report()
+    # lat_solver.report()
+
+
+    print("Optimized Island Set, Latium Islands:")
     lat_solver.solve()
+    print("            ", end = '')
     lat_solver.report()
+
 
     print("Done")
 

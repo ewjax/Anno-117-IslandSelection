@@ -13,6 +13,11 @@ class AlbionSolver(SimulatedAnnealingSolver):
         # call parent ctor
         super().__init__()
 
+        # input file
+        # todo - make this more general, rather than hardcoding it
+        # self.filename = 'corners_seed7324_albion.csv'
+        self.filename = 'archipelago_seed8689_albion.csv'
+
         # set up a basic array of islands
         self.load_islands()
 
@@ -32,7 +37,7 @@ class AlbionSolver(SimulatedAnnealingSolver):
     def load_islands(self):
         """
         load island info from a CSV file
-        # todo - read this info from a savegame file
+        # todo - read this info from a savegame file rather than a CSV file
         ideally this function should be replaced to read the island info
         directly from a save file
         """
@@ -40,12 +45,8 @@ class AlbionSolver(SimulatedAnnealingSolver):
         # ensure list starts empty
         self.the_list = []
 
-        # todo - make this more general, rather than hardcoding it
-        # filename = 'corners_seed7324_albion.csv'
-        filename = 'archipelago_seed8689_albion.csv'
-
         # walk the input file list
-        with open(filename, 'r') as file:
+        with open(self.filename, 'r') as file:
             for line in file:
                 # Process each line here
                 if line[0] != '#':
@@ -83,9 +84,8 @@ class AlbionSolver(SimulatedAnnealingSolver):
 
         return rv
 
-    def report(self) -> []:
-
-        rv = []
+    def report(self) -> list:
+        rv = list()
         covered_fertilities: AlbionFertility = self.starting_fertilities
 
         print(f"Islands: [", end = '')
@@ -115,20 +115,17 @@ def main():
 
     # Albion solver
     alb_solver = AlbionSolver()
+    print('')
+    print(f"Region map: [{alb_solver.filename}]")
     # alb_solver.report()
 
     # alb_solver.solve()
     # print("Roman+Celtic Combined Optimized Island Set:")
     # alb_solver.report()
 
-
-    print('Beginning Island Optimization Process...')
-    print('')
-
-
     # solve for islands for first population
     # print(f"num islands = {len(alb_solver.the_list)}")
-    print("Roman then Celtic Optimized Island Set:")
+    print("Optimized Island Set, Albion Islands, Roman then Celtic:")
     alb_solver.set_coverage(AlbionFertility.roman())
     alb_solver.solve()
     print("      Roman ", end = '')
@@ -150,7 +147,7 @@ def main():
 
     # solve for islands for first population
     # print(f"num islands = {len(alb_solver.the_list)}")
-    print("Celtic then Roman Optimized Island Set:")
+    print("Optimized Island Set, Albion Islands, Celtic then Roman:")
     alb_solver.set_coverage(AlbionFertility.celtic())
     alb_solver.solve()
     print("     Celtic ", end = '')
