@@ -1,7 +1,7 @@
 import math
 import numpy
 
-#
+
 ###########################################################################################
 #
 #   General purpose Simulated Annealing solver
@@ -125,8 +125,8 @@ class SimulatedAnnealingSolver:
 
         return the_list
 
-#
 ###########################################################################################
+#
 #
 class SimpleArraySolver(SimulatedAnnealingSolver):
     """
@@ -149,8 +149,8 @@ class SimpleArraySolver(SimulatedAnnealingSolver):
         return rv
 
 
-#
 ###########################################################################################
+#
 #
 def main():
 

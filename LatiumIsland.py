@@ -181,7 +181,7 @@ class LatiumIsland:
         self.river_weight = 5
 
         # island size
-        self.island_size_weight[IslandSize.EXTRALARGE] = 150
+        self.island_size_weight[IslandSize.EXTRALARGE] = 160
         self.island_size_weight[IslandSize.LARGE] = 80
         self.island_size_weight[IslandSize.MEDIUM] = 40
         self.island_size_weight[IslandSize.SMALL] = 20
@@ -200,24 +200,29 @@ class LatiumIsland:
         # note we only count basic fertilities which have NOT been counted already on a previous island
         f: LatiumFertility
         for f in LatiumFertility:
-            # if self.has_fertility(f) and include_fertilities & f == f:
-            #     rv += self.fertility_weight[f.value]
             if self.has_fertility(f) and include_fertilities.has(f):
-                rv += self.fertility_weight[f.value]
 
-        # river slots. increase weighting if there is also a Sturgeon or Gold fertility
-        # count these even if they've already been counted already on a previous island
+                # sturgeon: base weighting assumes 10 river slots, adjust up or down if not 10
+                if f == LatiumFertility.STURGEON:
+                    rv += self.fertility_weight[f.value] * self.river_slots / 10.0
+
+                # gold: base weighting assumes 10 river slots, adjust up or down if not 10
+                elif f == LatiumFertility.GOLD_ORE:
+                    rv += self.fertility_weight[f.value] * self.river_slots / 10.0
+
+                # mineral: base weighting assumes 10 mountainn slots, adjust up or down if not 10
+                elif f == LatiumFertility.MINERAL:
+                    rv += self.fertility_weight[f.value] * self.mountain_slots / 10.0
+
+                # all other fertilities
+                else:
+                    rv += self.fertility_weight[f.value]
+
+        # river slots.
         rv += self.river_weight * self.river_slots
-        # if self.has_fertility(LatiumFertility.STURGEON):
-        #     rv += 0.5 * self.river_weight * self.river_slots
-        # if self.has_fertility(LatiumFertility.GOLD_ORE):
-        #     rv += 0.5 * self.river_weight * self.river_slots
 
-        # mountain slots. increase weighting if there is also a Mineral fertility
-        # count these even if they've already been counted already on a previous island
+        # mountain slots.
         rv += self.mountain_weight * self.mountain_slots
-        # if self.has_fertility(LatiumFertility.MINERAL):
-        #     rv += 0.5 * self.mountain_weight * self.mountain_slots
 
         # island size
         rv += self.island_size_weight[self.island_size]
