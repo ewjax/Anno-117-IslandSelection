@@ -133,28 +133,6 @@ def main():
 
     # solve for islands for first population
     # print(f"num islands = {len(alb_solver.the_list)}")
-    print("Optimized Island Set, Albion Islands, Roman then Celtic:")
-    alb_solver.set_coverage(AlbionFertility.roman())
-    alb_solver.solve()
-    print("      Roman ", end = '')
-    solution_islands = alb_solver.report()
-
-    # remove islands used in first population as not available for second population
-    new_list = [island for island in alb_solver.the_list if island not in solution_islands]
-    alb_solver.the_list = new_list
-    # print(f"num islands = {len(alb_solver.the_list)}")
-
-    # solve for islands for second population
-    alb_solver.set_coverage(AlbionFertility.celtic())
-    alb_solver.solve()
-    print("     Celtic ", end = '')
-    alb_solver.report()
-
-    # reload islands, and do it in the reverse order
-    alb_solver.load_islands()
-
-    # solve for islands for first population
-    # print(f"num islands = {len(alb_solver.the_list)}")
     print("Optimized Island Set, Albion Islands, Celtic then Roman:")
     alb_solver.set_coverage(AlbionFertility.celtic())
     alb_solver.solve()
@@ -170,6 +148,28 @@ def main():
     alb_solver.set_coverage(AlbionFertility.roman())
     alb_solver.solve()
     print("      Roman ", end = '')
+    alb_solver.report()
+
+    # reload islands, and do it in the reverse order
+    alb_solver.load_islands()
+
+    # solve for islands for first population
+    # print(f"num islands = {len(alb_solver.the_list)}")
+    print("Optimized Island Set, Albion Islands, Roman then Celtic:")
+    alb_solver.set_coverage(AlbionFertility.roman())
+    alb_solver.solve()
+    print("      Roman ", end = '')
+    solution_islands = alb_solver.report()
+
+    # remove islands used in first population as not available for second population
+    new_list = [island for island in alb_solver.the_list if island not in solution_islands]
+    alb_solver.the_list = new_list
+    # print(f"num islands = {len(alb_solver.the_list)}")
+
+    # solve for islands for second population
+    alb_solver.set_coverage(AlbionFertility.celtic())
+    alb_solver.solve()
+    print("     Celtic ", end = '')
     alb_solver.report()
 
     print('')

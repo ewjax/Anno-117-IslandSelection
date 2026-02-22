@@ -48,7 +48,7 @@ Region map: [corners_seed7324_latium.csv]
 Optimized Island Set, Latium Islands:
             Islands: [W, 250, 290] (Score = 944)
 ```
-This is indicating that a good set of latium islands that give access to every latium fertility can be found from setting the islands I arbitrarily named 'W', then '250', then '290'.
+This is indicating that a good set of latium islands that give access to every latium fertility can be found from settling the islands I arbitrarily named 'W', then '250', then '290'.
 
 Sample output of the Albion solver:
 ```
