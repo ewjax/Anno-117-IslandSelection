@@ -240,7 +240,14 @@ class AlbionIsland:
         f: AlbionFertility
         for f in AlbionFertility:
             if self.has_fertility(f) and include_fertilities.has(f):
-                rv += self.fertility_weight[f.value]
+
+                # granite: base weighting assumes 10 mountainn slots, adjust up or down if not 10
+                if f == AlbionFertility.GRANITE:
+                    rv += self.fertility_weight[f.value] * self.mountain_slots / 10.0
+
+                # all other fertilities
+                else:
+                    rv += self.fertility_weight[f.value]
 
         # marsh slots.
         rv += self.marsh_weight * self.marsh_slots
