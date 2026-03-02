@@ -122,9 +122,15 @@ def main():
     # print(f"Score: [{score}]")
     # lat_solver.report()
 
+    # show initial guesses - score the list as initially read in
+    # useful if wish to evaluate choices already made, by putting those choices first in the input list
+    print("Initial Island Guesses, Latium Islands:")
+    print("            ", end = '')
+    lat_solver.report()
 
-    print("Optimized Island Set, Latium Islands:")
+    # solve for an optimized set
     lat_solver.solve()
+    print("Optimized Island Set, Latium Islands:")
     print("            ", end = '')
     lat_solver.report()
 

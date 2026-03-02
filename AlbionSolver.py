@@ -125,14 +125,19 @@ def main():
     alb_solver.set_filename(sys.argv[1])
     print('')
     print(f"Region map: [{alb_solver.filename}]")
-    # alb_solver.report()
 
-    # alb_solver.solve()
-    # print("Roman+Celtic Combined Optimized Island Set:")
-    # alb_solver.report()
 
-    # solve for islands for first population
-    # print(f"num islands = {len(alb_solver.the_list)}")
+    # show initial guesses - score the list as initially read in
+    # useful if wish to evaluate choices already made, by putting those choices first in the input list
+    print("Initial Island Guesses, Albion Islands:")
+    alb_solver.set_coverage(AlbionFertility.celtic())
+    print("     Celtic ", end = '')
+    alb_solver.report()
+
+    alb_solver.set_coverage(AlbionFertility.roman())
+    print("      Roman ", end = '')
+    alb_solver.report()
+
     print("Optimized Island Set, Albion Islands, Celtic then Roman:")
     alb_solver.set_coverage(AlbionFertility.celtic())
     alb_solver.solve()
