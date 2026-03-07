@@ -62,13 +62,24 @@ class LatiumSolver(SimulatedAnnealingSolver):
         # also, we only want the minimum number of islands to cover all fertilities, so
         # add a penalty for every island beyond the first
         rv = 0.0
+
+        # set the initial set of covered fertilities
         covered_fertilities: LatiumFertility = LatiumFertility.all_fertilities()
+
         island: LatiumIsland
         for ndx, island in enumerate(candidate_list):
+
+            # get island score
             rv += (self.extra_island_reduction_rate ** ndx) * island.calculate_score(covered_fertilities)
             rv -= ndx * self.extra_island_penalty
+
             # removed this island's fertilities from the overall list
             covered_fertilities = covered_fertilities.remove(island.fertilities)
+
+            # ensure we still want a gold fertility, even if the main island had it - want a non-main island with gold
+            if ndx == 0:
+                covered_fertilities = covered_fertilities.add(LatiumFertility.GOLD_ORE)
+
             if covered_fertilities == LatiumFertility.no_fertilities():
                 break
         # print(f"highest index to cover all ferts = {ndx}")
@@ -86,11 +97,16 @@ class LatiumSolver(SimulatedAnnealingSolver):
 
         print(f"Islands: [", end = '')
         island: LatiumIsland
-        for island in self.the_list:
+        for ndx, island in enumerate(self.the_list):
             rv.append(island)
             print(f"{island.island_name}", end = '')
             # removed this island's fertilities from the overall list
             covered_fertilities = covered_fertilities.remove(island.fertilities)
+
+            # ensure we still want a gold fertility, even if the main island had it - want a non-main island with gold
+            if ndx == 0:
+                covered_fertilities = covered_fertilities.add(LatiumFertility.GOLD_ORE)
+
             if covered_fertilities == LatiumFertility.no_fertilities():
                 break
             print(", ", end = '')
