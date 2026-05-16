@@ -74,7 +74,7 @@ class AlbionSolver(SimulatedAnnealingSolver):
         covered_fertilities: AlbionFertility = self.starting_fertilities
         island: AlbionIsland
         for ndx, island in enumerate(candidate_list):
-            rv += (self.extra_island_reduction_rate ** ndx) * island.calculate_score(covered_fertilities)
+            rv += (self.extra_island_reduction_rate ** ndx) * island.calculate_score(covered_fertilities, (ndx == 0))
             rv -= ndx * self.extra_island_penalty
             # removed this island's fertilities from the overall list
             covered_fertilities = covered_fertilities.remove(island.fertilities)
@@ -88,6 +88,7 @@ class AlbionSolver(SimulatedAnnealingSolver):
         rv = list()
         covered_fertilities: AlbionFertility = self.starting_fertilities
 
+        # print(f"num islands = {len(self.the_list)}")
         print(f"Islands: [", end = '')
         island: AlbionIsland
         for ndx, island in enumerate(self.the_list):
@@ -100,6 +101,20 @@ class AlbionSolver(SimulatedAnnealingSolver):
             print(", ", end = '')
 
         print(f"] (Score = {self.score(self.the_list):.0f})")
+
+        # now provide a detailed report of fertilities
+        covered_fertilities: AlbionFertility = self.starting_fertilities
+        for island in rv:
+            print(f"       {island.island_name:>12}: ", end='')
+
+            for f in island.fertilities:
+                name = f.name.lower()
+                if covered_fertilities.has(f):
+                    name = f.name
+
+                print(f"{name}, ", end='')
+                covered_fertilities = covered_fertilities.remove(f)
+            print("")
 
         # return a list of the solution islands
         return rv
@@ -126,9 +141,10 @@ def main():
     print('')
     print(f"Region map: [{alb_solver.filename}]")
 
-
+    # ########################### initial guess ###################################
     # show initial guesses - score the list as initially read in
     # useful if wish to evaluate choices already made, by putting those choices first in the input list
+    print("----------------------------------------------------------------------------")
     print("Initial Island Guesses, Albion Islands:")
     alb_solver.set_coverage(AlbionFertility.celtic())
     print("     Celtic ", end = '')
@@ -137,24 +153,36 @@ def main():
     alb_solver.set_coverage(AlbionFertility.roman())
     print("      Roman ", end = '')
     alb_solver.report()
+    print("")
 
+    # ########################### Celtic then Roman ###################################
+    print("----------------------------------------------------------------------------")
     print("Optimized Island Set, Albion Islands, Celtic then Roman:")
     alb_solver.set_coverage(AlbionFertility.celtic())
     alb_solver.solve()
     print("     Celtic ", end = '')
     solution_islands = alb_solver.report()
 
-    # remove islands used in first population as not available for second population
-    new_list = [island for island in alb_solver.the_list if island not in solution_islands]
+    # remove the first island used in first population as not available for second population
+    first_island = solution_islands.pop(0)
+    new_list = [island for island in alb_solver.the_list if island != first_island]
     alb_solver.the_list = new_list
-    # print(f"num islands = {len(alb_solver.the_list)}")
+
+    # bump up the reuse bonus for the islands contained in the first solution
+    island: AlbionIsland
+    for island in alb_solver.the_list:
+        if island in solution_islands:
+            island.reuse_weight += 200
 
     # solve for islands for second population
     alb_solver.set_coverage(AlbionFertility.roman())
     alb_solver.solve()
     print("      Roman ", end = '')
     alb_solver.report()
+    print("")
 
+    # ########################### Roman then Celtic ###################################
+    print("----------------------------------------------------------------------------")
     # reload islands, and do it in the reverse order
     alb_solver.load_islands()
 
@@ -166,10 +194,16 @@ def main():
     print("      Roman ", end = '')
     solution_islands = alb_solver.report()
 
-    # remove islands used in first population as not available for second population
-    new_list = [island for island in alb_solver.the_list if island not in solution_islands]
+    # remove the first island used in first population as not available for second population
+    first_island = solution_islands.pop(0)
+    new_list = [island for island in alb_solver.the_list if island != first_island]
     alb_solver.the_list = new_list
-    # print(f"num islands = {len(alb_solver.the_list)}")
+
+    # bump up the reuse bonus for the islands contained in the first solution
+    island: AlbionIsland
+    for island in alb_solver.the_list:
+        if island in solution_islands:
+            island.reuse_weight += 500
 
     # solve for islands for second population
     alb_solver.set_coverage(AlbionFertility.celtic())

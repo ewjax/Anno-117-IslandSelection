@@ -113,6 +113,25 @@ class LatiumSolver(SimulatedAnnealingSolver):
 
         print(f"] (Score = {self.score(self.the_list):.0f})")
 
+        # now provide a detailed report of fertilities
+        covered_fertilities = LatiumFertility.all_fertilities()
+        for ndx, island in enumerate(rv):
+            print(f"       {island.island_name:>12}: ", end='')
+
+            for f in island.fertilities:
+                name = f.name.lower()
+                if covered_fertilities.has(f):
+                    name = f.name
+
+                print(f"{name}, ", end='')
+                covered_fertilities = covered_fertilities.remove(f)
+
+                # ensure we still want a gold fertility, even if the main island had it - want a non-main island with gold
+                if ndx == 0:
+                    covered_fertilities = covered_fertilities.add(LatiumFertility.GOLD_ORE)
+
+            print("")
+
         # return a list of the solution islands
         return rv
 

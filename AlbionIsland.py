@@ -122,6 +122,12 @@ class AlbionIsland:
         self.mountain_weight = 0
         self.marsh_weight = 0
 
+        # bonus for first island / tier3 maintenance fertility
+        self.first_island_tier3_good = 0
+
+        # bonus for reusing this island for a secondary island for both Roman and Celt
+        self.reuse_weight = 0
+
         # call function to set all tuning values
         self.define_weights()
 
@@ -180,30 +186,39 @@ class AlbionIsland:
         for f in AlbionFertility:
             self.fertility_weight[f] = 0
 
-        # tier2 chains (celt) - beer, trousers, torcs, horns, shields
+        # tier2 (celt) - beer, trousers, torcs, horns, shields
         self.fertility_weight[AlbionFertility.BARLEY] += 70         # beer
         self.fertility_weight[AlbionFertility.DYE_PLANT] += 140     # trousers, shields
         self.fertility_weight[AlbionFertility.COPPER] += 140        # torcs, shields
         self.fertility_weight[AlbionFertility.TIN] += 140           # horns, shields
 
-        # tier2 chains (roman) - sausage, brooches, amphorae
+        # tier2 needs (roman) - sausage, brooches, amphorae
         self.fertility_weight[AlbionFertility.HERBS] += 70          # sausage
         self.fertility_weight[AlbionFertility.SILVER] += 70         # brooches
         self.fertility_weight[AlbionFertility.RESIN] += 70          # amphorae
 
-        # tier3 chains (celt) - beef, cloak, pelt hats, chariots
+        # tier3 (celt) - beef, cloak, pelt hats, chariots
+        self.fertility_weight[AlbionFertility.PONY] += 50           # chariots
+
+        # tier3 (celt) - beef, cloak, pelt hats, chariots
         self.fertility_weight[AlbionFertility.SALTWORT] += 100      # beef, pelt hats
         self.fertility_weight[AlbionFertility.DYE_PLANT] += 50      # cloak
         self.fertility_weight[AlbionFertility.COPPER] += 50         # cloak
         self.fertility_weight[AlbionFertility.BEAVER] += 50         # pelt hats
         self.fertility_weight[AlbionFertility.PONY] += 50           # chariots
 
-        # tier3 chains (roman) - aspic, wigs, mirrors
+        # tier3 needs (roman) - aspic, wigs, mirrors
         self.fertility_weight[AlbionFertility.SMALL_BIRDS] += 50    # aspic
         self.fertility_weight[AlbionFertility.FLAX] += 50           # wigs
         self.fertility_weight[AlbionFertility.RESIN] += 50          # wigs
         self.fertility_weight[AlbionFertility.SILVER] += 50         # mirrors
         self.fertility_weight[AlbionFertility.SEA_SHELL] += 50      # mirrors
+
+        # bonus for first island / tier3 maintenance fertility (Celtic = PONY, Roman = SMALL_BIRDS, SEA_SHELLS)
+        self.first_island_tier3_good = 1000
+
+        # bonus for reusing this island for a secondary island for both Roman and Celt
+        self.reuse_weight = 0
 
         # construction material for tier2 weapons and armor
         # (70 + 70)/2
@@ -226,7 +241,9 @@ class AlbionIsland:
         self.island_size_weight[IslandSize.MEDIUM] = 100
         self.island_size_weight[IslandSize.SMALL] = 10
 
-    def calculate_score(self, include_fertilities: AlbionFertility) -> float:
+
+
+    def calculate_score(self, include_fertilities: AlbionFertility, first_island: bool = False) -> float:
         """
         determine score based purely on this island's fertilities
         and the associated weighting values for each fertility
@@ -240,6 +257,14 @@ class AlbionIsland:
         f: AlbionFertility
         for f in AlbionFertility:
             if self.has_fertility(f) and include_fertilities.has(f):
+
+                # reuse bonus - only apply if this island has needed fertilities
+                rv += self.reuse_weight
+
+                # handle tier3 special cases, only for first island
+                if first_island:
+                    if f == AlbionFertility.PONY or f == AlbionFertility.SMALL_BIRDS or f == AlbionFertility.SEA_SHELL:
+                        rv += self.first_island_tier3_good
 
                 # granite: base weighting assumes 10 mountainn slots, adjust up or down if not 10
                 if f == AlbionFertility.GRANITE:
@@ -257,6 +282,7 @@ class AlbionIsland:
 
         # island size
         rv += self.island_size_weight[self.island_size]
+
 
         # todo - need some way to assess total travel distance.  Get (x,y) info from savegame?
 
